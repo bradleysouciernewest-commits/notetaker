@@ -1,4 +1,4 @@
-/* Material You (dependency-free) — enhanced layout, ripple, and refinements */
+/* Material You (dependency-free) — enhanced layout, ripple, textfields */
 
 :root{
   --md-primary: #6750A4;
@@ -75,8 +75,18 @@ main, .container{display:grid;grid-template-columns:360px 1fr;gap:22px;padding:2
 
 /* Editor */
 .editor{background:var(--surface);padding:20px;border-radius:16px;display:flex;flex-direction:column;box-shadow:var(--elev)}
-#noteTitle{font-size:1.05rem;padding:12px;border-radius:12px;border:1px solid var(--surface-variant);background:transparent;color:var(--on-surface);margin-bottom:12px}
-#noteContent{flex:1;padding:14px;border-radius:12px;border:1px solid var(--surface-variant);background:transparent;color:var(--on-surface);resize:vertical}
+
+/* Material-like textfields */
+.md-text-field{position:relative;margin-bottom:12px}
+.md-text-field input,.md-text-field textarea{width:100%;border-radius:10px;padding:18px 12px 8px 12px;border:1px solid var(--surface-variant);background:transparent;color:var(--on-surface);font-size:1rem;transition:box-shadow .18s,border-color .18s}
+.md-text-field.textarea textarea{padding:16px 12px 12px 12px;min-height:160px;resize:vertical}
+.md-text-field label{position:absolute;left:12px;top:16px;padding:0 6px;background:transparent;color:var(--muted);pointer-events:auto;transition:transform .18s cubic-bezier(.2,.8,.2,1),font-size .18s,top .18s}
+
+/* when focused or has value, float the label */
+.md-text-field.focused label,
+.md-text-field.has-value label{transform:translateY(-58%) scale(0.86);font-size:0.85rem;background:var(--surface);top:8px;color:var(--md-primary)}
+
+.md-text-field.focused input,.md-text-field.focused textarea{border-color:var(--md-primary);box-shadow:0 8px 20px rgba(103,80,164,0.08)}
 
 /* Editor controls */
 .editor-controls{display:flex;align-items:center;gap:10px;margin-top:14px;justify-content:space-between}
@@ -100,7 +110,7 @@ button.danger{background:transparent;border:1px solid var(--error);color:var(--e
 .ripple-animate{transform:scale(1);transition:transform 520ms cubic-bezier(.2,.8,.2,1),opacity 520ms linear;opacity:0}
 
 /* focus-visible */
-button:focus-visible, .menu-btn:focus-visible, .fab:focus-visible, .icon-btn:focus-visible{outline:3px solid rgba(103,80,164,0.14);outline-offset:2px}
+button:focus-visible, .menu-btn:focus-visible, .fab:focus-visible, .icon-btn:focus-visible, .md-text-field input:focus-visible, .md-text-field textarea:focus-visible{outline:3px solid rgba(103,80,164,0.14);outline-offset:2px}
 
 /* screen-reader only */
 .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}

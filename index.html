@@ -53,8 +53,16 @@
 
     <section class="editor" aria-label="Note editor">
       <form id="noteForm">
-        <input id="noteTitle" placeholder="Note title" maxlength="120" autocomplete="off" />
-        <textarea id="noteContent" placeholder="Write your note..." rows="12"></textarea>
+
+        <div class="md-text-field outlined">
+          <input id="noteTitle" maxlength="120" autocomplete="off" aria-label="Note title">
+          <label for="noteTitle">Note title</label>
+        </div>
+
+        <div class="md-text-field filled textarea">
+          <textarea id="noteContent" rows="12" aria-label="Note content"></textarea>
+          <label for="noteContent">Write your note...</label>
+        </div>
 
         <div class="editor-controls">
           <label class="pin-wrap"><input id="pinCheck" type="checkbox" /> Pin</label>
@@ -75,6 +83,7 @@
   <div id="toast" class="toast" aria-hidden="true"></div>
 
   <script src="ripple.js" type="module"></script>
+  <script src="textfields.js" type="module"></script>
   <script src="app.js"></script>
 
   <script>
@@ -129,6 +138,7 @@
         if(!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) closeMenu();
       });
     })();
+
   </script>
 </body>
 </html>
