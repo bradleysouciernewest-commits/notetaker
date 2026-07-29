@@ -14,6 +14,18 @@
   --muted: #6b6b70;
 }
 
+/* Dark theme tokens applied when body.dark is present */
+body.dark{
+  --md-primary: #D0BCFF;
+  --md-on-primary: #381E72;
+  --surface: #111218;
+  --on-surface: #E6E1E5;
+  --surface-variant: #1F1B24;
+  --outline: #BFB9C6;
+  --error: #FFB4AB;
+  --muted: #9a98a3;
+}
+
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;font-family:Roboto, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial;background:var(--surface);color:var(--on-surface);-webkit-font-smoothing:antialiased}
 body.mui{min-height:100vh;display:flex;flex-direction:column}
@@ -33,6 +45,9 @@ body.mui{min-height:100vh;display:flex;flex-direction:column}
 /* actions row (keeps buttons aligned) */
 .actions-row{display:flex;align-items:center;gap:8px}
 
+/* small icon button */
+.icon-btn{width:40px;height:40px;border-radius:10px;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden}
+
 /* FAB */
 .fab{width:44px;height:44px;border-radius:50%;border:0;background:linear-gradient(180deg,var(--md-primary),#8E6AD6);color:var(--md-on-primary);display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--elev);cursor:pointer;position:relative;overflow:hidden}
 .fab .material-symbols-outlined{font-size:20px}
@@ -48,7 +63,9 @@ body.mui{min-height:100vh;display:flex;flex-direction:column}
 /* Main layout */
 main, .container{display:grid;grid-template-columns:360px 1fr;gap:22px;padding:20px;flex:1}
 .notes-list{background:var(--surface);padding:14px;border-radius:16px;overflow:auto;box-shadow:var(--elev);border:1px solid rgba(0,0,0,0.03)}
-.note-item{display:flex;flex-direction:column;padding:14px;border-radius:12px;margin-bottom:12px;border:1px solid rgba(0,0,0,0.03);cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+.note-item{display:flex;flex-direction:column;padding:14px;border-radius:12px;margin-bottom:12px;border:1px solid rgba(0,0,0,0.03);cursor:pointer;transition:transform .12s ease,box-shadow .12s ease,opacity .18s ease}
+.note-item.enter{animation:enter 240ms cubic-bezier(.2,.8,.2,1)}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .note-item:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(16,16,20,0.06)}
 .note-header{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .note-title{font-weight:600;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
@@ -70,15 +87,23 @@ button.danger{background:transparent;border:1px solid var(--error);color:var(--e
 
 .status{margin-top:12px;color:var(--muted);font-size:0.9rem}
 
-/* ripple element */
+/* Toast */
+.toast{position:fixed;right:20px;bottom:20px;background:var(--md-primary);color:var(--md-on-primary);padding:12px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(16,16,20,0.18);transform:translateY(12px);opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s}
+.toast.show{transform:translateY(0);opacity:1;pointer-events:auto}
+
+/* ripple (CSS-centered fallback for keyboard/accessible interactions) */
+.ripple::after{content:'';position:absolute;border-radius:50%;width:200%;height:200%;left:50%;top:50%;transform:translate(-50%,-50%) scale(0);background:rgba(0,0,0,0.12);opacity:1;pointer-events:none;transition:transform 520ms cubic-bezier(.2,.8,.2,1),opacity 520ms linear}
+.ripple:active::after{transform:translate(-50%,-50%) scale(1);opacity:0}
+
+/* JS ripple element styles (still used for pointer-positioned ripples) */
 .ripple-effect{position:absolute;border-radius:50%;transform:scale(0);opacity:0.6;pointer-events:none;background:rgba(0,0,0,0.14)}
 .ripple-animate{transform:scale(1);transition:transform 520ms cubic-bezier(.2,.8,.2,1),opacity 520ms linear;opacity:0}
 
 /* focus-visible */
-button:focus-visible, .menu-btn:focus-visible, .fab:focus-visible{outline:3px solid rgba(103,80,164,0.14);outline-offset:2px}
+button:focus-visible, .menu-btn:focus-visible, .fab:focus-visible, .icon-btn:focus-visible{outline:3px solid rgba(103,80,164,0.14);outline-offset:2px}
 
-/* empty state */
-.empty{padding:18px;text-align:center;color:var(--muted);font-weight:500}
+/* screen-reader only */
+.sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 
 /* responsive */
 @media (max-width:880px){

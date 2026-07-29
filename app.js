@@ -1,6 +1,7 @@
 // LocalNotes — simple note taking stored in localStorage
 // Key used in localStorage:
 const STORAGE_KEY = 'localnotes.v1';
+const THEME_KEY = 'localnotes.theme';
 
 const notesListEl = document.getElementById('notesList');
 const noteForm = document.getElementById('noteForm');
@@ -15,6 +16,10 @@ const statusEl = document.getElementById('status');
 const exportBtn = document.getElementById('exportBtn');
 const importFile = document.getElementById('importFile');
 const clearAllBtn = document.getElementById('clearAllBtn');
+const srStatus = document.getElementById('srStatus');
+const toastEl = document.getElementById('toast');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
 
 let notes = [];
 let selectedId = null;
@@ -33,11 +38,47 @@ function loadNotes(){
 function saveNotes(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
   showStatus('Saved');
+  showToast('Saved');
 }
 
 function showStatus(txt){
+  if(!statusEl) return;
   statusEl.textContent = txt;
+  // announce to screen reader region too
+  if(srStatus) srStatus.textContent = txt;
   setTimeout(()=>{ if(statusEl.textContent === txt) statusEl.textContent = '' }, 1400);
+}
+
+// Toast
+function showToast(message, ms = 1600){
+  if(!toastEl) return;
+  toastEl.textContent = message;
+  toastEl.setAttribute('aria-hidden','false');
+  toastEl.classList.add('show');
+  // announce
+  if(srStatus) srStatus.textContent = message;
+  setTimeout(()=>{
+    toastEl.classList.remove('show');
+    toastEl.setAttribute('aria-hidden','true');
+  }, ms);
+}
+
+// Theme
+function applyTheme(theme){
+  if(theme === 'dark') document.body.classList.add('dark');
+  else document.body.classList.remove('dark');
+  if(themeIcon) themeIcon.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode';
+}
+function loadTheme(){
+  const t = localStorage.getItem(THEME_KEY) || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(t);
+}
+function toggleTheme(){
+  const dark = document.body.classList.toggle('dark');
+  const theme = dark ? 'dark' : 'light';
+  localStorage.setItem(THEME_KEY, theme);
+  applyTheme(theme);
+  if(srStatus) srStatus.textContent = `Switched to ${theme} theme`;
 }
 
 function newNote(){
@@ -61,7 +102,7 @@ function populateEditor(note){
   selectedId = note.id;
   titleInput.value = note.title;
   contentInput.value = note.content;
-  pinCheck.checked = !!note.pinned;
+  if(pinCheck) pinCheck.checked = !!note.pinned;
   highlightSelected();
 }
 
@@ -78,7 +119,7 @@ function updateNoteFromEditor(){
   if(!note) return;
   note.title = titleInput.value;
   note.content = contentInput.value;
-  note.pinned = pinCheck.checked;
+  if(pinCheck) note.pinned = pinCheck.checked;
   note.updatedAt = new Date().toISOString();
   // keep pinned notes at top
   notes = notes.filter(n=>n.id!==note.id);
@@ -102,11 +143,12 @@ function clearEditor(){
   selectedId = null;
   titleInput.value = '';
   contentInput.value = '';
-  pinCheck.checked = false;
+  if(pinCheck) pinCheck.checked = false;
   highlightSelected();
 }
 
 function renderNotes(filter = ''){
+  if(!notesListEl) return;
   notesListEl.innerHTML = '';
   // sort: pinned first (already managed), then updatedAt desc
   notes.sort((a,b)=>{
@@ -128,7 +170,7 @@ function renderNotes(filter = ''){
 
   shown.forEach(note=>{
     const item = document.createElement('div');
-    item.className = 'note-item';
+    item.className = 'note-item enter';
     item.dataset.id = note.id;
 
     const header = document.createElement('div');
@@ -169,6 +211,11 @@ function renderNotes(filter = ''){
     notesListEl.appendChild(item);
   });
 
+  // remove 'enter' class after animation so it doesn't re-run on re-render
+  setTimeout(()=>{
+    document.querySelectorAll('.note-item.enter').forEach(el=>el.classList.remove('enter'));
+  }, 300);
+
   highlightSelected();
 }
 
@@ -207,6 +254,7 @@ function importFromFile(file){
       saveNotes();
       renderNotes();
       showStatus('Imported');
+      showToast('Imported');
     }catch(err){
       alert('Failed to import: ' + err.message);
     }
@@ -217,6 +265,7 @@ function importFromFile(file){
 // init
 function init(){
   loadNotes();
+  loadTheme();
   renderNotes();
 
   noteForm.addEventListener('submit', (e)=>{
@@ -228,7 +277,7 @@ function init(){
         id,
         title: titleInput.value,
         content: contentInput.value,
-        pinned: pinCheck.checked,
+        pinned: pinCheck ? pinCheck.checked : false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -243,16 +292,16 @@ function init(){
     updateNoteFromEditor();
   });
 
-  newNoteBtn.addEventListener('click', ()=> newNote());
-  deleteBtn.addEventListener('click', ()=> deleteSelectedNote());
-  searchInput.addEventListener('input', ()=> renderNotes(searchInput.value));
-  exportBtn.addEventListener('click', ()=> exportNotesToFile());
-  importFile.addEventListener('change', (e)=>{
+  if(newNoteBtn) newNoteBtn.addEventListener('click', ()=> newNote());
+  if(deleteBtn) deleteBtn.addEventListener('click', ()=> deleteSelectedNote());
+  if(searchInput) searchInput.addEventListener('input', ()=> renderNotes(searchInput.value));
+  if(exportBtn) exportBtn.addEventListener('click', ()=> exportNotesToFile());
+  if(importFile) importFile.addEventListener('change', (e)=>{
     const f = e.target.files && e.target.files[0];
     if(f) importFromFile(f);
     importFile.value = '';
   });
-  clearAllBtn.addEventListener('click', ()=>{
+  if(clearAllBtn) clearAllBtn.addEventListener('click', ()=>{
     if(!confirm('Clear ALL notes? This cannot be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
     notes = [];
@@ -260,7 +309,10 @@ function init(){
     renderNotes();
     clearEditor();
     showStatus('Cleared');
+    showToast('Cleared');
   });
+
+  if(themeToggle) themeToggle.addEventListener('click', toggleTheme);
 
   // auto-save drafts periodically (every 5s) when a note is selected and changed
   let draftTimer = null;
@@ -272,7 +324,7 @@ function init(){
   }
   titleInput.addEventListener('input', scheduleDraftSave);
   contentInput.addEventListener('input', scheduleDraftSave);
-  pinCheck.addEventListener('change', scheduleDraftSave);
+  if(pinCheck) pinCheck.addEventListener('change', scheduleDraftSave);
 
   // keyboard shortcut: Ctrl/Cmd+N
   window.addEventListener('keydown', (e)=>{

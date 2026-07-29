@@ -25,19 +25,23 @@
       </div>
 
       <div class="actions-row">
+        <button id="themeToggle" class="icon-btn ripple" title="Toggle theme" aria-label="Toggle theme">
+          <span class="material-symbols-outlined" id="themeIcon">light_mode</span>
+        </button>
+
         <button id="newNoteBtn" class="fab ripple" title="New note" aria-label="New note">
           <span class="material-symbols-outlined">add</span>
         </button>
 
         <div class="menu">
-          <button class="menu-btn ripple" id="moreBtn" aria-haspopup="true" aria-expanded="false" aria-label="More">
+          <button class="menu-btn ripple" id="moreBtn" aria-haspopup="true" aria-expanded="false" aria-controls="moreMenu" aria-label="More">
             <span class="material-symbols-outlined">more_vert</span>
           </button>
           <div class="menu-popover" id="moreMenu" role="menu" aria-hidden="true">
-            <button id="exportBtn" class="ripple" role="menuitem"><span class="material-symbols-outlined">file_download</span> Export JSON</button>
-            <label for="importFile" class="importLabel ripple" role="menuitem"><span class="material-symbols-outlined">file_upload</span> Import JSON</label>
+            <button id="exportBtn" class="ripple" role="menuitem" tabindex="0"><span class="material-symbols-outlined">file_download</span> Export JSON</button>
+            <label for="importFile" class="importLabel ripple" role="menuitem" tabindex="0"><span class="material-symbols-outlined">file_upload</span> Import JSON</label>
             <input id="importFile" type="file" accept="application/json" style="display:none">
-            <button id="clearAllBtn" class="ripple" role="menuitem"><span class="material-symbols-outlined">delete_forever</span> Clear all</button>
+            <button id="clearAllBtn" class="ripple" role="menuitem" tabindex="0"><span class="material-symbols-outlined">delete_forever</span> Clear all</button>
           </div>
         </div>
       </div>
@@ -64,29 +68,67 @@
     </section>
   </main>
 
+  <!-- Accessible live region for screen reader announcements -->
+  <div id="srStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Toast for animated saves -->
+  <div id="toast" class="toast" aria-hidden="true"></div>
+
   <script src="ripple.js" type="module"></script>
   <script src="app.js"></script>
 
   <script>
-    // simple menu toggle (keeps the UI working without extra libs)
-    const moreBtn = document.getElementById('moreBtn');
-    const moreMenu = document.getElementById('moreMenu');
-    if (moreBtn && moreMenu) {
-      moreBtn.addEventListener('click', (e) => {
+    // keyboard + accessibility for the menu
+    (function(){
+      const moreBtn = document.getElementById('moreBtn');
+      const moreMenu = document.getElementById('moreMenu');
+      if(!moreBtn || !moreMenu) return;
+
+      const items = Array.from(moreMenu.querySelectorAll('[role="menuitem"]'));
+      function openMenu(){
+        moreMenu.style.display = 'flex';
+        moreMenu.setAttribute('aria-hidden','false');
+        moreBtn.setAttribute('aria-expanded','true');
+        items[0] && items[0].focus();
+        document.getElementById('srStatus').textContent = 'Menu opened';
+      }
+      function closeMenu(){
+        moreMenu.style.display = 'none';
+        moreMenu.setAttribute('aria-hidden','true');
+        moreBtn.setAttribute('aria-expanded','false');
+        moreBtn.focus();
+        document.getElementById('srStatus').textContent = 'Menu closed';
+      }
+
+      moreBtn.addEventListener('click', (e)=>{
         e.stopPropagation();
-        const opened = moreMenu.style.display === 'flex';
-        moreMenu.style.display = opened ? 'none' : 'flex';
-        moreMenu.setAttribute('aria-hidden', opened ? 'true' : 'false');
-        moreBtn.setAttribute('aria-expanded', (!opened).toString());
+        if(moreMenu.style.display === 'flex') closeMenu(); else openMenu();
       });
-      document.addEventListener('click', (e) => {
-        if (!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) {
-          moreMenu.style.display = 'none';
-          moreMenu.setAttribute('aria-hidden', 'true');
-          moreBtn.setAttribute('aria-expanded', 'false');
+
+      moreMenu.addEventListener('keydown', (e)=>{
+        const idx = items.indexOf(document.activeElement);
+        if(e.key === 'ArrowDown'){
+          e.preventDefault();
+          const next = (idx + 1) % items.length; items[next].focus();
+        }else if(e.key === 'ArrowUp'){
+          e.preventDefault();
+          const prev = (idx - 1 + items.length) % items.length; items[prev].focus();
+        }else if(e.key === 'Escape'){
+          e.preventDefault();
+          closeMenu();
+        }else if(e.key === 'Enter' || e.key === ' '){
+          // activate
+          e.preventDefault();
+          document.activeElement.click();
+          closeMenu();
         }
       });
-    }
+
+      // close on outside click
+      document.addEventListener('click', (e)=>{
+        if(!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) closeMenu();
+      });
+    })();
   </script>
 </body>
 </html>
