@@ -6,50 +6,47 @@
   <title>LocalNotes — Notes in localStorage</title>
   <!-- Google Fonts (Roboto) + Material Symbols -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet" />
-
-  <!-- Material Web components (real Material You / Material Web from Google) -->
-  <script type="module">
-    // Import only the components we use
-    import '@material/web/top-app-bar/top-app-bar.js';
-    import '@material/web/button/filled-button.js';
-    import '@material/web/button/outlined-button.js';
-    import '@material/web/iconbutton/filled-icon-button.js';
-    import '@material/web/textfield/outlined-text-field.js';
-    import '@material/web/textfield/filled-text-field.js';
-    import '@material/web/list/list.js';
-    import '@material/web/list/list-item.js';
-  </script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="mui">
-  <!-- Top app bar (Material Web) -->
-  <md-top-app-bar>
-    <div slot="leading" class="app-title">
-      <span class="material-symbols-outlined md-icon">note_alt</span>
-      <span class="title-text">LocalNotes</span>
+  <header class="app-header">
+    <div class="title">
+      <span class="material-symbols-outlined icon">note_alt</span>
+      <h1>LocalNotes</h1>
     </div>
-    <div slot="trailing" class="top-actions">
-      <md-filled-icon-button id="newNoteBtn" title="New note">
-        <span class="material-symbols-outlined">add</span>
-      </md-filled-icon-button>
-    </div>
-  </md-top-app-bar>
 
-  <main class="container">
+    <div class="header-controls">
+      <div class="search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input id="search" type="search" placeholder="Search notes" aria-label="Search notes" />
+      </div>
+      <button id="newNoteBtn" class="fab" title="New note"><span class="material-symbols-outlined">add</span></button>
+
+      <div class="menu">
+        <button class="menu-btn" id="moreBtn" aria-haspopup="true" aria-expanded="false"><span class="material-symbols-outlined">more_vert</span></button>
+        <div class="menu-popover" id="moreMenu" role="menu">
+          <button id="exportBtn" role="menuitem"><span class="material-symbols-outlined">file_download</span> Export JSON</button>
+          <label for="importFile" class="importLabel"><span class="material-symbols-outlined">file_upload</span> Import JSON</label>
+          <input id="importFile" type="file" accept="application/json" style="display:none">
+          <button id="clearAllBtn" role="menuitem"><span class="material-symbols-outlined">delete_forever</span> Clear all</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
     <aside id="notesList" class="notes-list" aria-label="Notes list"></aside>
 
     <section class="editor">
       <form id="noteForm">
-        <md-outlined-text-field id="noteTitle" placeholder="Note title" maxlength="120"></md-outlined-text-field>
-        <md-filled-text-field id="noteContent" textarea placeholder="Write your note..." rows="10"></md-filled-text-field>
-
+        <input id="noteTitle" placeholder="Note title" maxlength="120" autocomplete="off" />
+        <textarea id="noteContent" placeholder="Write your note..." rows="12"></textarea>
         <div class="editor-controls">
           <label class="pin-wrap"><input id="pinCheck" type="checkbox" /> Pin</label>
           <div class="actions">
-            <md-filled-button id="saveBtn">Save</md-filled-button>
-            <md-outlined-button id="deleteBtn">Delete</md-outlined-button>
+            <button id="saveBtn" type="submit" class="primary">Save</button>
+            <button id="deleteBtn" type="button" class="danger">Delete</button>
           </div>
         </div>
       </form>
