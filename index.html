@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LocalNotes — Notes in localStorage</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>LocalNotes</h1>
+    <div class="header-controls">
+      <input id="search" type="search" placeholder="Search notes..." />
+      <button id="newNoteBtn">+ New</button>
+      <div class="dropdown">
+        <button id="moreBtn">⋯</button>
+        <div class="dropdown-content" id="moreMenu">
+          <button id="exportBtn">Export JSON</button>
+          <label for="importFile" class="importLabel">Import JSON</label>
+          <input id="importFile" type="file" accept="application/json" style="display:none">
+          <button id="clearAllBtn">Clear all</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside id="notesList" class="notes-list" aria-label="Notes list"></aside>
+
+    <section class="editor">
+      <form id="noteForm">
+        <input id="noteTitle" placeholder="Note title" maxlength="120" autocomplete="off" />
+        <textarea id="noteContent" placeholder="Write your note..." rows="12"></textarea>
+        <div class="editor-controls">
+          <label><input id="pinCheck" type="checkbox" /> Pin</label>
+          <button id="saveBtn" type="submit">Save</button>
+          <button id="deleteBtn" type="button" class="danger">Delete</button>
+        </div>
+      </form>
+      <footer class="status" id="status"></footer>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
