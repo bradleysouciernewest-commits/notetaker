@@ -4,8 +4,8 @@ const STORAGE_KEY = 'localnotes.v1';
 
 const notesListEl = document.getElementById('notesList');
 const noteForm = document.getElementById('noteForm');
-const titleInput = document.getElementById('noteTitle');
-const contentInput = document.getElementById('noteContent');
+const titleInputEl = document.getElementById('noteTitle');
+const contentInputEl = document.getElementById('noteContent');
 const pinCheck = document.getElementById('pinCheck');
 const saveBtn = document.getElementById('saveBtn');
 const deleteBtn = document.getElementById('deleteBtn');
@@ -18,6 +18,30 @@ const clearAllBtn = document.getElementById('clearAllBtn');
 
 let notes = [];
 let selectedId = null;
+
+// Helper: get/set values for native inputs and Material Web textfields
+function getElValue(el){
+  if(!el) return '';
+  // material web textfields expose .value
+  if('value' in el) return el.value ?? '';
+  // fallback: find inner input/textarea
+  const inner = el.querySelector && el.querySelector('input,textarea');
+  return inner ? inner.value : '';
+}
+function setElValue(el, val){
+  if(!el) return;
+  if('value' in el){ el.value = val; return; }
+  const inner = el.querySelector && el.querySelector('input,textarea');
+  if(inner){ inner.value = val; inner.dispatchEvent(new Event('input', {bubbles:true})); }
+}
+function addInputListener(el, handler){
+  if(!el) return;
+  el.addEventListener('input', handler);
+  el.addEventListener('change', handler);
+  // if custom element has an internal input, also attach to it
+  const inner = el.querySelector && el.querySelector('input,textarea');
+  if(inner){ inner.addEventListener('input', handler); inner.addEventListener('change', handler); }
+}
 
 // Utilities
 function loadNotes(){
@@ -36,6 +60,7 @@ function saveNotes(){
 }
 
 function showStatus(txt){
+  if(!statusEl) return;
   statusEl.textContent = txt;
   setTimeout(()=>{ if(statusEl.textContent === txt) statusEl.textContent = '' }, 1400);
 }
@@ -59,9 +84,9 @@ function newNote(){
 
 function populateEditor(note){
   selectedId = note.id;
-  titleInput.value = note.title;
-  contentInput.value = note.content;
-  pinCheck.checked = !!note.pinned;
+  setElValue(titleInputEl, note.title);
+  setElValue(contentInputEl, note.content);
+  if(pinCheck) pinCheck.checked = !!note.pinned;
   highlightSelected();
 }
 
@@ -76,9 +101,9 @@ function updateNoteFromEditor(){
   if(!selectedId) return;
   const note = notes.find(n=>n.id===selectedId);
   if(!note) return;
-  note.title = titleInput.value;
-  note.content = contentInput.value;
-  note.pinned = pinCheck.checked;
+  note.title = getElValue(titleInputEl);
+  note.content = getElValue(contentInputEl);
+  if(pinCheck) note.pinned = pinCheck.checked;
   note.updatedAt = new Date().toISOString();
   // keep pinned notes at top
   notes = notes.filter(n=>n.id!==note.id);
@@ -100,13 +125,14 @@ function deleteSelectedNote(){
 
 function clearEditor(){
   selectedId = null;
-  titleInput.value = '';
-  contentInput.value = '';
-  pinCheck.checked = false;
+  setElValue(titleInputEl, '');
+  setElValue(contentInputEl, '');
+  if(pinCheck) pinCheck.checked = false;
   highlightSelected();
 }
 
 function renderNotes(filter = ''){
+  if(!notesListEl) return;
   notesListEl.innerHTML = '';
   // sort: pinned first (already managed), then updatedAt desc
   notes.sort((a,b)=>{
@@ -226,9 +252,9 @@ function init(){
       const id = Date.now().toString();
       const note = {
         id,
-        title: titleInput.value,
-        content: contentInput.value,
-        pinned: pinCheck.checked,
+        title: getElValue(titleInputEl),
+        content: getElValue(contentInputEl),
+        pinned: pinCheck ? pinCheck.checked : false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
@@ -243,16 +269,16 @@ function init(){
     updateNoteFromEditor();
   });
 
-  newNoteBtn.addEventListener('click', ()=> newNote());
-  deleteBtn.addEventListener('click', ()=> deleteSelectedNote());
-  searchInput.addEventListener('input', ()=> renderNotes(searchInput.value));
-  exportBtn.addEventListener('click', ()=> exportNotesToFile());
-  importFile.addEventListener('change', (e)=>{
+  if(newNoteBtn) newNoteBtn.addEventListener('click', ()=> newNote());
+  if(deleteBtn) deleteBtn.addEventListener('click', ()=> deleteSelectedNote());
+  if(searchInput) searchInput.addEventListener('input', ()=> renderNotes(searchInput.value));
+  if(exportBtn) exportBtn.addEventListener('click', ()=> exportNotesToFile());
+  if(importFile) importFile.addEventListener('change', (e)=>{
     const f = e.target.files && e.target.files[0];
     if(f) importFromFile(f);
     importFile.value = '';
   });
-  clearAllBtn.addEventListener('click', ()=>{
+  if(clearAllBtn) clearAllBtn.addEventListener('click', ()=>{
     if(!confirm('Clear ALL notes? This cannot be undone.')) return;
     localStorage.removeItem(STORAGE_KEY);
     notes = [];
@@ -270,16 +296,22 @@ function init(){
       if(selectedId) updateNoteFromEditor();
     }, 2500);
   }
-  titleInput.addEventListener('input', scheduleDraftSave);
-  contentInput.addEventListener('input', scheduleDraftSave);
-  pinCheck.addEventListener('change', scheduleDraftSave);
+
+  addInputListener(titleInputEl, scheduleDraftSave);
+  addInputListener(contentInputEl, scheduleDraftSave);
+  if(pinCheck) pinCheck.addEventListener('change', scheduleDraftSave);
 
   // keyboard shortcut: Ctrl/Cmd+N
   window.addEventListener('keydown', (e)=>{
     if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n'){
       e.preventDefault();
       newNote();
-      titleInput.focus();
+      // focus the internal input if custom element
+      if(titleInputEl){
+        if(typeof titleInputEl.focus === 'function') titleInputEl.focus();
+        const inner = titleInputEl.querySelector && titleInputEl.querySelector('input,textarea');
+        if(inner) inner.focus();
+      }
     }
   });
 

@@ -18,6 +18,8 @@
     import 'https://unpkg.com/@material/web/top-app-bar/top-app-bar.js?module';
     import 'https://unpkg.com/@material/web/iconbutton/filled-icon-button.js?module';
     import 'https://unpkg.com/@material/web/button/filled-button.js?module';
+    import 'https://unpkg.com/@material/web/textfield/outlined-text-field.js?module';
+    import 'https://unpkg.com/@material/web/textfield/filled-text-field.js?module';
     import 'https://unpkg.com/@material/web/list/list.js?module';
     import 'https://unpkg.com/@material/web/list/list-item.js?module';
   </script>
@@ -40,8 +42,8 @@
 
     <section class="editor">
       <form id="noteForm">
-        <input id="noteTitle" placeholder="Note title" maxlength="120" autocomplete="off" />
-        <textarea id="noteContent" placeholder="Write your note..." rows="12"></textarea>
+        <md-outlined-text-field id="noteTitle" placeholder="Note title" maxlength="120"></md-outlined-text-field>
+        <md-filled-text-field id="noteContent" textarea placeholder="Write your note..." rows="12"></md-filled-text-field>
 
         <div class="editor-controls">
           <label class="pin-wrap"><input id="pinCheck" type="checkbox" /> Pin</label>
@@ -57,7 +59,7 @@
 
   <script src="app.js" type="module"></script>
   <script>
-    // menu toggle (same helper as index.html)
+    // menu toggle (keeps the UI working without extra libs)
     const moreBtn = document.getElementById('moreBtn');
     const moreMenu = document.getElementById('moreMenu');
     if (moreBtn && moreMenu) {
