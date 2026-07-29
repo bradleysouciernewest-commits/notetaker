@@ -1,0 +1,17 @@
+{
+  "name": "notetaker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@material/web": "^0.28.0",
+    "lit": "^2.7.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

@@ -1,15 +1,32 @@
-# LocalNotes
+# LocalNotes — Material Web dev setup
 
-A minimal single-page notes app that stores notes in your browser's localStorage.
+This repository was updated to use Material Web (Google's Material You) components with a Vite dev setup.
 
-Files:
-- index.html — UI
-- styles.css — styles
-- app.js — logic and localStorage handling
+Quick start
 
-How to run:
-1. Put these three files in a folder.
-2. Open `index.html` in your browser (no server required).
-3. Use "New" to create notes, click a note to edit, search in the header, export/import JSON, or clear all.
+1. Clone the repo and open the project folder.
+2. Install dependencies:
 
-Data persisted under localStorage key: `localnotes.v1`.
+```bash
+npm install
+```
+
+3. Run the dev server:
+
+```bash
+npm run dev
+```
+
+4. Open the URL shown by Vite (usually http://localhost:5173).
+
+Build for production
+
+```bash
+npm run build
+npm run preview
+```
+
+Notes
+
+- Material Web components are installed as npm packages and imported via bare module specifiers in index.html. Vite resolves these during development and bundling.
+- For now, text inputs (title/content) are native elements to preserve the existing app.js logic. We can migrate to Material Web textfields later if you'd like.

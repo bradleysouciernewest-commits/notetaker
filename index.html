@@ -4,44 +4,45 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LocalNotes — Notes in localStorage</title>
-  <!-- Google Fonts (Roboto) + Material Symbols -->
+
+  <!-- Roboto + Material Symbols (Google Fonts) -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="styles.css">
+
+  <script type="module">
+    // Material Web components (will be resolved by Vite during dev/build)
+    import '@material/web/top-app-bar/top-app-bar.js';
+    import '@material/web/iconbutton/filled-icon-button.js';
+    import '@material/web/button/filled-button.js';
+    import '@material/web/list/list.js';
+    import '@material/web/list/list-item.js';
+  </script>
 </head>
 <body class="mui">
-  <header class="app-header">
-    <div class="title">
-      <span class="material-symbols-outlined icon">note_alt</span>
-      <h1>LocalNotes</h1>
+  <!-- Top app bar (Material Web) -->
+  <md-top-app-bar>
+    <div slot="leading" class="app-title">
+      <span class="material-symbols-outlined md-icon">note_alt</span>
+      <span class="title-text">LocalNotes</span>
     </div>
-
-    <div class="header-controls">
-      <div class="search-wrap">
-        <span class="material-symbols-outlined">search</span>
-        <input id="search" type="search" placeholder="Search notes" aria-label="Search notes" />
-      </div>
-      <button id="newNoteBtn" class="fab" title="New note"><span class="material-symbols-outlined">add</span></button>
-
-      <div class="menu">
-        <button class="menu-btn" id="moreBtn" aria-haspopup="true" aria-expanded="false"><span class="material-symbols-outlined">more_vert</span></button>
-        <div class="menu-popover" id="moreMenu" role="menu">
-          <button id="exportBtn" role="menuitem"><span class="material-symbols-outlined">file_download</span> Export JSON</button>
-          <label for="importFile" class="importLabel"><span class="material-symbols-outlined">file_upload</span> Import JSON</label>
-          <input id="importFile" type="file" accept="application/json" style="display:none">
-          <button id="clearAllBtn" role="menuitem"><span class="material-symbols-outlined">delete_forever</span> Clear all</button>
-        </div>
-      </div>
+    <div slot="trailing" class="top-actions">
+      <md-filled-icon-button id="newNoteBtn" title="New note">
+        <span class="material-symbols-outlined">add</span>
+      </md-filled-icon-button>
     </div>
-  </header>
+  </md-top-app-bar>
 
-  <main>
+  <main class="container">
     <aside id="notesList" class="notes-list" aria-label="Notes list"></aside>
 
     <section class="editor">
       <form id="noteForm">
+        <!-- Keep native inputs for maximum compatibility with existing app.js -->
         <input id="noteTitle" placeholder="Note title" maxlength="120" autocomplete="off" />
         <textarea id="noteContent" placeholder="Write your note..." rows="12"></textarea>
+
         <div class="editor-controls">
           <label class="pin-wrap"><input id="pinCheck" type="checkbox" /> Pin</label>
           <div class="actions">
@@ -50,10 +51,10 @@
           </div>
         </div>
       </form>
-      <footer class="status" id="status"></footer>
+      <footer class="status" id="status" aria-live="polite"></footer>
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
