@@ -54,14 +54,23 @@
     <section class="editor" aria-label="Note editor">
       <form id="noteForm">
 
-        <div class="md-text-field outlined">
-          <input id="noteTitle" maxlength="120" autocomplete="off" aria-label="Note title">
+        <!-- Title: filled variant with floating label + counter + helper -->
+        <div class="md-text-field filled" data-helper="A short title helps you find notes quickly">
+          <input id="noteTitle" maxlength="120" autocomplete="off" aria-describedby="titleHelper titleCounter" />
           <label for="noteTitle">Note title</label>
+          <div class="helper-row">
+            <span class="helper" id="titleHelper">A short title helps you find notes quickly</span>
+            <span class="counter" id="titleCounter" aria-live="polite">0/120</span>
+          </div>
         </div>
 
-        <div class="md-text-field filled textarea">
-          <textarea id="noteContent" rows="12" aria-label="Note content"></textarea>
+        <!-- Content: filled textarea variant with helper -->
+        <div class="md-text-field filled textarea" data-helper="Tip: use headings with # for structure">
+          <textarea id="noteContent" rows="12" aria-describedby="contentHelper"></textarea>
           <label for="noteContent">Write your note...</label>
+          <div class="helper-row">
+            <span class="helper" id="contentHelper">Tip: use headings with # for structure</span>
+          </div>
         </div>
 
         <div class="editor-controls">
